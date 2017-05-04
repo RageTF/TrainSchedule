@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd">
+
+    <security:http auto-config="true" use-expressions="true">
+        <security:intercept-url pattern="/" access="isAuthenticated()"/>
+        <security:intercept-url pattern="/authorization" access="permitAll"/>
+        <security:intercept-url pattern="/admin/**" access="hasRole('ROLE_ADMIN')"/>
+        <!--<security:intercept-url pattern="/cities" access="hasRole('ROLE_USER')"/>
+        <security:intercept-url pattern="/trips" access="hasRole('ROLE_USER')"/>
+        <security:intercept-url pattern="/citySearch" access="hasRole('ROLE_USER')"/>
+        <security:intercept-url pattern="/countrySelection" access="hasRole('ROLE_USER')"/>
+        <security:intercept-url pattern="/admin/**" access="hasRole('ROLE_ADMIN')"/>
+        <security:intercept-url pattern="/deleteTrip/**" access="hasRole('ROLE_ADMIN')"/>
+        <security:intercept-url pattern="/deleteCountry/*" access="hasRole('ROLE_ADMIN')"/>-->
+        <security:form-login login-processing-url="/j_spring_security_check"
+                             login-page="/authorization"
+                             authentication-failure-url="/authorization?error=true"
+                             username-parameter="j_username"
+                             password-parameter="j_password" default-target-url="/"/>
+        <security:logout logout-success-url="/authorization" logout-url="/j_spring_security_logout"/>
+        <security:csrf disabled="true"/>
+    </security:http>
+
+    <!--<bean id="authenticationFilter"
+          class="org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter">
+        <property name="filterProcessesUrl" value="/authorization/j_spring_security_check" />
+        <property name="authenticationManager" ref="authenticationManager" />
+        <property name="authenticationSuccessHandler">
+            <bean class="org.springframework.security.web.authentication.SavedRequestAwareAuthenticationSuccessHandler">
+                <property name="/" value="true"/>
+            </bean>
+        </property>
+        <property name="authenticationFailureHandler">
+            <bean class="org.springframework.security.web.authentication.SimpleUrlAuthenticationFailureHandler">
+                <property name="defaultFailureUrl" value="/login?login_error=t" />
+            </bean>
+        </property>
+    </bean>-->
+
+    <security:authentication-manager id="authenticationManager">
+        <security:authentication-provider>
+            <security:user-service>
+                <security:user name="admin" password="123456"
+                               authorities="ROLE_ADMIN, ROLE_USER"/>
+                <security:user name="user" password="123456"
+                               authorities="ROLE_USER"/>
+            </security:user-service>
+        </security:authentication-provider>
+    </security:authentication-manager>
+
+
+</beans>

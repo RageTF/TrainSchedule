@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:spring="http://www.springframework.org/schema/c"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <mvc:annotation-driven/>
+    <context:annotation-config/>
+
+    <context:component-scan base-package="spring.controller"/>
+
+    <mvc:resources mapping="/resources/**" location="/resources/"/>
+
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+        <property name="cache" value="true"/>
+        <property name="prefix" value=""/>
+        <property name="suffix" value=".ftl"/>
+        <property name="contentType" value="text/html;charset=UTF-8"/>
+    </bean>
+
+    <bean id="freemarkerConfig" class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+        <property name="templateLoaderPath" value="/WEB-INF/views/"/>
+        <property name="defaultEncoding" value="UTF-8"/>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+    <bean id="dataSource"
+          class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
+        <property name="url" value="jdbc:mysql://localhost:3306/trainschedule"/>
+        <property name="username" value="root"/>
+        <property name="password" value="123456789"/>
+    </bean>
+
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="packagesToScan">
+            <list>
+                <value>spring.model.pojo</value>
+            </list>
+        </property>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.show_sql">true</prop>
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQLDialect</prop>
+                <prop key="hibernate.connection.charSet">UTF-8</prop>
+                <prop key="hibernate.connection.url">jdbc:postgresql://localhost:3306/trainschedule</prop>
+                <prop key="hibernate.connection.driver_class">com.mysql.jdbc.Driver</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="mCityDao" class="spring.model.CityDaoImpl">
+        <constructor-arg ref="sessionFactory"/>
+    </bean>
+    <bean id="mCountryDao" class="spring.model.CountryDaoImpl">
+        <constructor-arg ref="sessionFactory"/>
+    </bean>
+    <bean id="mTripDao" class="spring.model.TripDaoImpl">
+        <constructor-arg ref="sessionFactory"/>
+    </bean>
+
+    <bean id="mCountryService" class="spring.service.CountryServiceImpl">
+        <constructor-arg ref="mCountryDao"/>
+    </bean>
+    <bean id="mTripService" class="spring.service.TripServiceImpl">
+        <constructor-arg ref="mTripDao"/>
+    </bean>
+    <bean id="mCityService" class="spring.service.CityServiceImpl">
+        <constructor-arg ref="mCityDao"/>
+    </bean>
+
+    <bean id="transactionManager"
+          class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <bean id="aspect" class="spring.aspect.EntityAspect" init-method="init">
+    </bean>
+
+    <aop:config>
+
+        <aop:aspect ref="aspect">
+
+            <aop:pointcut id="performer" expression="execution(* spring.service.*.*(..))"/>
+            <aop:before method="before" pointcut-ref="performer"/>
+            <aop:after method="after" pointcut-ref="performer"/>
+            <aop:after-returning method="beforeReturning" pointcut-ref="performer"/>
+            <aop:after-throwing method="afterThrowing" pointcut-ref="performer"/>
+
+        </aop:aspect>
+
+    </aop:config>
+
+</beans>
