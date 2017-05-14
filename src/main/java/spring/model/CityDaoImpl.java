@@ -59,4 +59,28 @@ public class CityDaoImpl implements CityDao {
         }
         return cityEntityList.get(0).getCityId();
     }
+
+    public static void main(String[] args) {
+        System.out.println(getDuration(28800000));
+    }
+
+    private static String getDuration(long milliseconds) {
+        int minutes = (int) ((milliseconds / (1000 * 60)) % 60);
+        int hours = (int) ((milliseconds / (1000 * 60 * 60)) % 24);
+        StringBuilder stringBuilder = new StringBuilder();
+        if (hours != 0) {
+            stringBuilder.append(hours);
+            stringBuilder.append(" ");
+            stringBuilder.append("ч");
+            stringBuilder.append(" ");
+        }
+        if(minutes<10){
+            stringBuilder.append("0");
+        }
+        stringBuilder.append(minutes);
+        stringBuilder.append(" ");
+        stringBuilder.append("мин");
+
+        return stringBuilder.toString();
+    }
 }

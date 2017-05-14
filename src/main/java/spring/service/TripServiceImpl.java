@@ -43,5 +43,9 @@ public class TripServiceImpl implements TripService {
         return mTripDao.searchTripEntity(depCity,arrCity,depCountry,arrCountry);
     }
 
+    public static void main(String[] args) {
+        System.out.println(42%10);
+    }
+
 
 }
